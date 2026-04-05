@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Dinámica de Insumos</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --success: #27ae60;
+            --bg: #f8f9fa;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            padding: 20px;
+            color: var(--primary);
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid var(--accent);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            background: #fff3e0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        select, input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        select {
+            cursor: pointer;
+            background: white;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .input-cell { width: 120px; }
+        input[type="number"] {
+            width: 100%;
+            text-align: right;
+        }
+        .total-row {
+            background-color: #f1f2f6;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .resaltado {
+            color: var(--success);
+            text-align: right;
+        }
+        .badge {
+            background: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Calculadora de Insumos Escalable</h1>
+        <p>Torta Fría por Peso</p>
+    </div>
+
+    <div class="controls">
+        <label for="libras"><strong>SELECCIONAR TAMAÑO (Libras):</strong></label>
+        <select id="libras" onchange="calcular()">
+            <option value="1">1 Libra (Base)</option>
+            <option value="1.25">1.25 Libras</option>
+            <option value="1.5">1.5 Libras</option>
+            <option value="2">2 Libras</option>
+            <option value="2.5">2.5 Libras</option>
+            <option value="3">3 Libras</option>
+            <option value="4">4 Libras</option>
+        </select>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Ingrediente</th>
+                <th>Unidad</th>
+                <th>Precio Unit. ($)</th>
+                <th>Cant. Libra Base</th>
+                <th>Cant. Ajustada</th>
+                <th>Subtotal ($)</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-cuerpo">
+            <tr data-base-qty="10">
+                <td>Huevos</td>
+                <td>un</td>
+                <td><input type="number" value="500" class="price" oninput="calcular()"></td>
+                <td>10</td>
+                <td class="adj-qty">0</td>
+                <td class="row-total">0</td>
+            </tr>
+            <tr data-base-qty="314">
+                <td>Azúcar</td>
+                <td>gr</td>
+                <td><input type="number" value="7" class="price" oninput="calcular()"></td>
+                <td>314</td>
+                <td class="adj-qty">0</td>
+                <td class="row-total">0</td>
+            </tr>
+            <tr data-base-qty="342">
+                <td>Harina</td>
+                <td>gr</td>
+                <td><input type="number" value="6.6" class="price" step="0.1" oninput="calcular()"></td>
+                <td>342</td>
+                <td class="adj-qty">0</td>
+                <td class="row-total">0</td>
+            </tr>
+            <tr data-base-qty="5">
+                <td>Polvo de hornear</td>
+                <td>gr</td>
+                <td><input type="number" value="14.12" class="price" step="0.01" oninput="calcular()"></td>
+                <td>5</td>
+                <td class="adj-qty">0</td>
+                <td class="row-total">0</td>
+            </tr>
+            <tr data-base-qty="20">
+                <td>Esencia</td>
+                <td>ml</td>
+                <td><input type="number" value="13.78" class="price" step="0.01" oninput="calcular()"></td>
+                <td>20</td>
+                <td class="adj-qty">0</td>
+                <td class="row-total">0</td>
+            </tr>
+            <tr data-base-qty="48">
+                <td>Crema chantillí</td>
+                <td>ml</td>
+                <td><input type="number" value="16" class="price" oninput="calcular()"></td>
+                <td>48</td>
+                <td class="adj-qty">0</td>
+                <td class="row-total">0</td>
+            </tr>
+            <tr data-base-qty="40">
+                <td>Arequipe</td>
+                <td>gr</td>
+                <td><input type="number" value="10.2" class="price" step="0.1" oninput="calcular()"></td>
+                <td>40</td>
+                <td class="adj-qty">0</td>
+                <td class="row-total">0</td>
+            </tr>
+            <tr data-base-qty="40">
+                <td>Relleno de fruta</td>
+                <td>gr</td>
+                <td><input type="number" value="14.2" class="price" step="0.1" oninput="calcular()"></td>
+                <td>40</td>
+                <td class="adj-qty">0</td>
+                <td class="row-total">0</td>
+            </tr>
+            <tr data-base-qty="320">
+                <td>Leche líquida</td>
+                <td>ml</td>
+                <td><input type="number" value="4.55" class="price" step="0.01" oninput="calcular()"></td>
+                <td>320</td>
+                <td class="adj-qty">0</td>
+                <td class="row-total">0</td>
+            </tr>
+            <tr data-base-qty="80">
+                <td>Leche en polvo</td>
+                <td>gr</td>
+                <td><input type="number" value="21.67" class="price" step="0.01" oninput="calcular()"></td>
+                <td>80</td>
+                <td class="adj-qty">0</td>
+                <td class="row-total">0</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="5" style="text-align: right;">COSTO TOTAL MATERIALES:</td>
+                <td id="gran-total" class="resaltado">$ 0.00</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<script>
+    function calcular() {
+        const factor = parseFloat(document.getElementById('libras').value);
+        const filas = document.querySelectorAll("#tabla-cuerpo tr");
+        let granTotal = 0;
+
+        filas.forEach(fila => {
+            const baseQty = parseFloat(fila.getAttribute('data-base-qty'));
+            const precio = parseFloat(fila.querySelector(".price").value) || 0;
+            
+            // Escalar cantidad
+            const nuevaCant = baseQty * factor;
+            const subtotal = nuevaCant * precio;
+            
+            // Actualizar vista
+            fila.querySelector(".adj-qty").innerText = nuevaCant.toLocaleString('es-CO');
+            fila.querySelector(".row-total").innerText = subtotal.toLocaleString('es-CO', {minimumFractionDigits: 2});
+            
+            granTotal += subtotal;
+        });
+
+        document.getElementById("gran-total").innerText = granTotal.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 0
+        });
+    }
+
+    // Ejecutar al iniciar
+    window.onload = calcular;
+</script>
+
+</body>
+</html>
